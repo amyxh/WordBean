@@ -1,0 +1,82 @@
+[
+  {
+    "setName": "数字单词",
+    "category": "基础",
+    "words": [
+      { "wordText": "one", "phonetic": "/wʌn/", "paraphrase": "一" },
+      { "wordText": "two", "phonetic": "/tuː/", "paraphrase": "二" },
+      { "wordText": "three", "phonetic": "/θriː/", "paraphrase": "三" },
+      { "wordText": "four", "phonetic": "/fɔːr/", "paraphrase": "四" },
+      { "wordText": "five", "phonetic": "/faɪv/", "paraphrase": "五" },
+      { "wordText": "six", "phonetic": "/sɪks/", "paraphrase": "六" },
+      { "wordText": "seven", "phonetic": "/ˈsevən/", "paraphrase": "七" },
+      { "wordText": "eight", "phonetic": "/eɪt/", "paraphrase": "八" },
+      { "wordText": "nine", "phonetic": "/naɪn/", "paraphrase": "九" },
+      { "wordText": "ten", "phonetic": "/ten/", "paraphrase": "十" }
+    ]
+  },
+  {
+    "setName": "颜色单词",
+    "category": "主题",
+    "words": [
+      { "wordText": "red", "phonetic": "/red/", "paraphrase": "红色" },
+      { "wordText": "blue", "phonetic": "/bluː/", "paraphrase": "蓝色" },
+      { "wordText": "green", "phonetic": "/ɡriːn/", "paraphrase": "绿色" },
+      { "wordText": "yellow", "phonetic": "/ˈjeləʊ/", "paraphrase": "黄色" },
+      { "wordText": "orange", "phonetic": "/ˈɒrɪndʒ/", "paraphrase": "橙色" },
+      { "wordText": "purple", "phonetic": "/ˈpɜːpl/", "paraphrase": "紫色" },
+      { "wordText": "pink", "phonetic": "/pɪŋk/", "paraphrase": "粉色" },
+      { "wordText": "black", "phonetic": "/blæk/", "paraphrase": "黑色" },
+      { "wordText": "white", "phonetic": "/waɪt/", "paraphrase": "白色" },
+      { "wordText": "brown", "phonetic": "/braʊn/", "paraphrase": "棕色" }
+    ]
+  },
+  {
+    "setName": "动物单词",
+    "category": "主题",
+    "words": [
+      { "wordText": "cat", "phonetic": "/kæt/", "paraphrase": "猫" },
+      { "wordText": "dog", "phonetic": "/dɒɡ/", "paraphrase": "狗" },
+      { "wordText": "duck", "phonetic": "/dʌk/", "paraphrase": "鸭子" },
+      { "wordText": "chicken", "phonetic": "/ˈtʃɪkɪn/", "paraphrase": "鸡" },
+      { "wordText": "cow", "phonetic": "/kaʊ/", "paraphrase": "奶牛" },
+      { "wordText": "pig", "phonetic": "/pɪɡ/", "paraphrase": "猪" },
+      { "wordText": "sheep", "phonetic": "/ʃiːp/", "paraphrase": "羊" },
+      { "wordText": "horse", "phonetic": "/hɔːs/", "paraphrase": "马" },
+      { "wordText": "fish", "phonetic": "/fɪʃ/", "paraphrase": "鱼" },
+      { "wordText": "bird", "phonetic": "/bɜːd/", "paraphrase": "鸟" }
+    ]
+  },
+  {
+    "setName": "水果单词",
+    "category": "主题",
+    "words": [
+      { "wordText": "apple", "phonetic": "/ˈæpl/", "paraphrase": "苹果" },
+      { "wordText": "banana", "phonetic": "/bəˈnɑːnə/", "paraphrase": "香蕉" },
+      { "wordText": "orange", "phonetic": "/ˈɒrɪndʒ/", "paraphrase": "橙子" },
+      { "wordText": "grape", "phonetic": "/ɡreɪp/", "paraphrase": "葡萄" },
+      { "wordText": "watermelon", "phonetic": "/ˈwɔːtəmelən/", "paraphrase": "西瓜" },
+      { "wordText": "strawberry", "phonetic": "/ˈstrɔːbəri/", "paraphrase": "草莓" },
+      { "wordText": "peach", "phonetic": "/piːtʃ/", "paraphrase": "桃子" },
+      { "wordText": "pear", "phonetic": "/peə/", "paraphrase": "梨" },
+      { "wordText": "lemon", "phonetic": "/ˈlemən/", "paraphrase": "柠檬" },
+      { "wordText": "mango", "phonetic": "/ˈmæŋɡəʊ/", "paraphrase": "芒果" }
+    ]
+  },
+  {
+    "setName": "身体部位",
+    "category": "主题",
+    "words": [
+      { "wordText": "head", "phonetic": "/hed/", "paraphrase": "头" },
+      { "wordText": "eye", "phonetic": "/aɪ/", "paraphrase": "眼睛" },
+      { "wordText": "ear", "phonetic": "/ɪə/", "paraphrase": "耳朵" },
+      { "wordText": "nose", "phonetic": "/nəʊz/", "paraphrase": "鼻子" },
+      { "wordText": "mouth", "phonetic": "/maʊθ/", "paraphrase": "嘴巴" },
+      { "wordText": "face", "phonetic": "/feɪs/", "paraphrase": "脸" },
+      { "wordText": "hand", "phonetic": "/hænd/", "paraphrase": "手" },
+      { "wordText": "arm", "phonetic": "/ɑːm/", "paraphrase": "胳膊" },
+      { "wordText": "leg", "phonetic": "/leɡ/", "paraphrase": "腿" },
+      { "wordText": "foot", "phonetic": "/fʊt/", "paraphrase": "脚" }
+    ]
+  }
+]
