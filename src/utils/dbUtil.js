@@ -17,8 +17,21 @@ class MemoryDatabase {
       } else if (sql.startsWith('INSERT INTO')) {
         // 插入数据
         const tableName = sql.match(/INSERT INTO (\w+)/)[1];
+        // 解析字段名
+        const fieldsMatch = sql.match(/\(([^)]+)\)/);
+        const fields = fieldsMatch ? fieldsMatch[1].split(',').map(field => field.trim()) : [];
+        // 解析值占位符
+        const valuesMatch = sql.match(/VALUES\s*\(([^)]+)\)/);
+        
         const table = this.tables[tableName] || [];
-        table.push({ ...params });
+        
+        // 创建新记录对象
+        const newRecord = {};
+        fields.forEach((field, index) => {
+          newRecord[field] = params[index];
+        });
+        
+        table.push(newRecord);
         this.tables[tableName] = table;
         result = { rowsAffected: 1 };
       } else if (sql.startsWith('SELECT COUNT(*)')) {
@@ -33,6 +46,18 @@ class MemoryDatabase {
         // 处理 WHERE 子句（简单实现）
         const whereClause = sql.match(/WHERE (.+)/);
         let data = this.tables[tableName] || [];
+        
+        // 简单的WHERE条件过滤（仅支持单个条件：column = value）
+        if (whereClause) {
+          const clause = whereClause[1];
+          const [column, operator, value] = clause.split(/\s+/);
+          if (column && operator === '=' && value) {
+            // 移除引号
+            const cleanValue = value.replace(/['"]/g, '');
+            data = data.filter(row => row[column] == cleanValue);
+          }
+        }
+        
         result = { rows: { length: data.length, item: (index) => data[index] } };
       } else if (sql.startsWith('UPDATE')) {
         // 更新数据

@@ -8,18 +8,18 @@ const getAllWords = () => {
   let index = 0
   
   // 遍历所有单词集，合并单词
-  for (let i = 0; i < defaultWordSets.length; i++) {
-    const set = defaultWordSets[i]
-    for (let j = 0; j < set.words.length; j++) {
-      const word = set.words[j]
-      allWords.push({
-        ...word,
-        wordId: `word_merged_${index++}`,
-        setId: set.setId || `set_${i}`,
-        setName: set.setName
-      })
-    }
-  }
+      for (let i = 0; i < defaultWordSets.length; i++) {
+        const set = defaultWordSets[i]
+        for (let j = 0; j < set.words.length; j++) {
+          const word = set.words[j]
+          allWords.push({
+            ...word,
+            wordId: `word_merged_${index++}`,
+            setId: `set_${i}`,
+            setName: set.setName
+          })
+        }
+      }
   
   return allWords
 }
