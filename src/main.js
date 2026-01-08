@@ -9,8 +9,5 @@ const app = createApp(App)
 // 使用路由
 app.use(router)
 
-// 初始化音效服务
-initAudioService()
-
 // 挂载应用
 app.mount('#app')

@@ -1,21 +1,5 @@
 <template>
   <div class="home-container">
-    <!-- 右上角设置 -->
-    <div class="top-right-settings">
-      <div class="setting-item">
-        <span class="setting-label">音效</span>
-        <button @click="toggleSound" class="toggle-btn" :class="{ 'active': soundEnabled }">
-          <span class="toggle-slider"></span>
-        </button>
-      </div>
-      <div class="setting-item">
-        <span class="setting-label">音乐</span>
-        <button @click="toggleMusic" class="toggle-btn" :class="{ 'active': musicEnabled }">
-          <span class="toggle-slider"></span>
-        </button>
-      </div>
-    </div>
-    
     <!-- 标题 -->
     <div class="title-section">
       <h1>单词豆</h1>
@@ -50,59 +34,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import defaultWordSets from '@/assets/defaultWordSets.json'
-import { setSoundEnabled, setMusicEnabled } from '@/services/audioService'
 
 const router = useRouter()
 
 // 游戏设置
-const soundEnabled = ref(true)
-const musicEnabled = ref(true)
 const selectedDifficulty = ref('easy')
-
-// 加载设置
-const loadSettings = () => {
-  try {
-    const settingStr = localStorage.getItem('wordBeanSetting')
-    if (settingStr) {
-      const setting = JSON.parse(settingStr)
-      soundEnabled.value = setting.soundEnabled !== false
-      musicEnabled.value = setting.musicEnabled !== false
-    }
-  } catch (error) {
-    import('@/utils/logUtil').then((logUtil) => logUtil.error('加载设置失败', { module: 'HomeIndex' }, error))
-  }
-}
-
-// 保存设置
-const saveSetting = (updateData) => {
-  try {
-    const settingStr = localStorage.getItem('wordBeanSetting')
-    const currentSetting = settingStr ? JSON.parse(settingStr) : {}
-    const newSetting = { ...currentSetting, ...updateData }
-    localStorage.setItem('wordBeanSetting', JSON.stringify(newSetting))
-  } catch (error) {
-    import('@/utils/logUtil').then((logUtil) => logUtil.error('保存设置失败', { module: 'HomeIndex' }, error))
-  }
-}
-
-// 切换音效
-const toggleSound = () => {
-  soundEnabled.value = !soundEnabled.value
-  saveSetting({ soundEnabled: soundEnabled.value })
-  // 更新音频服务的音效设置
-  setSoundEnabled(soundEnabled.value)
-}
-
-// 切换背景音乐
-const toggleMusic = () => {
-  musicEnabled.value = !musicEnabled.value
-  saveSetting({ musicEnabled: musicEnabled.value })
-  // 更新音频服务的音乐设置
-  setMusicEnabled(musicEnabled.value)
-}
 
 // 选择难度
 const selectDifficulty = (difficulty) => {
@@ -121,11 +60,6 @@ const startGame = () => {
     }
   })
 }
-
-// 组件挂载时加载设置
-onMounted(() => {
-  loadSettings()
-})
 </script>
 
 <style scoped>
@@ -141,58 +75,7 @@ onMounted(() => {
   position: relative;
 }
 
-/* 右上角设置 */
-.top-right-settings {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
 
-.setting-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.setting-label {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-/* 开关样式 */
-.toggle-btn {
-  position: relative;
-  width: 40px;
-  height: 22px;
-  border-radius: 11px;
-  background-color: #e5e7eb;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.toggle-btn.active {
-  background-color: #3b82f6;
-}
-
-.toggle-slider {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background-color: white;
-  transition: all 0.3s ease;
-}
-
-.toggle-btn.active .toggle-slider {
-  transform: translateX(18px);
-}
 
 /* 标题部分 */
 .title-section {
