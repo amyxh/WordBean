@@ -1,7 +1,10 @@
 <template>
   <div class="setting-index">
     <div class="header">
-      <button @click="$router.push('/')" class="back-btn">返回首页</button>
+      <button @click="$router.push('/')" class="back-btn">
+        <span class="back-icon">←</span>
+        <span class="back-text">返回首页</span>
+      </button>
     </div>
     <div class="setting-card">
       <div class="setting-section">
@@ -121,18 +124,39 @@ onMounted(() => {
 }
 
 .back-btn {
-  background-color: #6b7280;
+  background-color: #3b82f6;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 500;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .back-btn:hover {
-  background-color: #4b5563;
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-icon {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.back-text {
+  font-size: 0.95rem;
 }
 
 h2 {

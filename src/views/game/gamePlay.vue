@@ -355,31 +355,94 @@ onUnmounted(() => {
 .game-board {
   flex: 1;
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
   padding: 1rem;
   overflow: auto;
   place-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 }
 
 .layout-3x4 {
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  grid-template-rows: repeat(3, 80px);
+  grid-auto-columns: minmax(80px, 1fr);
+  grid-auto-rows: 80px;
 }
 
 .layout-4x5 {
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+  grid-template-rows: repeat(4, 75px);
+  grid-auto-columns: minmax(75px, 1fr);
+  grid-auto-rows: 75px;
 }
 
 .layout-5x6 {
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  grid-template-rows: repeat(5, 70px);
+  grid-auto-columns: minmax(70px, 1fr);
+  grid-auto-rows: 70px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .game-board {
+    gap: 0.6rem;
+    padding: 0.8rem;
+  }
+  
+  .layout-3x4 {
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    grid-template-rows: repeat(3, 70px);
+    grid-auto-columns: minmax(70px, 1fr);
+    grid-auto-rows: 70px;
+  }
+  
+  .layout-4x5 {
+    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+    grid-template-rows: repeat(4, 65px);
+    grid-auto-columns: minmax(65px, 1fr);
+    grid-auto-rows: 65px;
+  }
+  
+  .layout-5x6 {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    grid-template-rows: repeat(5, 60px);
+    grid-auto-columns: minmax(60px, 1fr);
+    grid-auto-rows: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+  
+  .layout-3x4 {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    grid-template-rows: repeat(3, 60px);
+    grid-auto-columns: minmax(60px, 1fr);
+    grid-auto-rows: 60px;
+  }
+  
+  .layout-4x5 {
+    grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
+    grid-template-rows: repeat(4, 55px);
+    grid-auto-columns: minmax(55px, 1fr);
+    grid-auto-rows: 55px;
+  }
+  
+  .layout-5x6 {
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-template-rows: repeat(5, 50px);
+    grid-auto-columns: minmax(50px, 1fr);
+    grid-auto-rows: 50px;
+  }
 }
 
 .card {
   width: 100%;
   height: 100%;
-  min-height: 80px;
   background-color: white;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -389,6 +452,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   perspective: 1000px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
+  min-width: 50px;
+  min-height: 50px;
 }
 
 .card.selected {
@@ -418,29 +485,66 @@ onUnmounted(() => {
 
 .card-content {
   text-align: center;
-  padding: 1rem;
+  padding: 0.5rem;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .word-text {
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
   font-weight: bold;
   color: #1f2937;
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .paraphrase-text {
-  font-size: 1rem;
+  font-size: clamp(0.65rem, 2vw, 0.8rem);
   color: #4b5563;
+  line-height: 1.2;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .card-image {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 80%;
+  max-height: 80%;
   object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .card-image {
+  transform: scale(1.05);
+}
+
+/* 响应式字体调整 */
+@media (max-width: 768px) {
+  .word-text {
+    font-size: clamp(0.75rem, 3vw, 0.9rem);
+  }
+  
+  .paraphrase-text {
+    font-size: clamp(0.6rem, 2.5vw, 0.75rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .card-content {
+    padding: 0.3rem;
+  }
+  
+  .word-text {
+    font-size: clamp(0.7rem, 3.5vw, 0.85rem);
+  }
+  
+  .paraphrase-text {
+    font-size: clamp(0.55rem, 3vw, 0.7rem);
+  }
 }
 
 .game-footer {
