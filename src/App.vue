@@ -7,6 +7,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { initDatabase } from './db/index'
+import logUtil from './utils/logUtil'
 
 // App根组件，负责路由视图渲染
 
@@ -14,9 +15,9 @@ import { initDatabase } from './db/index'
 onMounted(async () => {
   try {
     await initDatabase()
-    console.log('数据库初始化完成')
+    logUtil.info('数据库初始化完成', { module: 'App' })
   } catch (error) {
-    console.error('数据库初始化失败:', error)
+    logUtil.error('数据库初始化失败', { module: 'App' }, error)
   }
 })
 </script>

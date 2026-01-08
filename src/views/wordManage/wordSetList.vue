@@ -36,10 +36,14 @@ const fetchWordSets = async () => {
     if (result.success) {
       wordSets.value = result.data
     } else {
-      console.error('获取单词集失败:', result.message)
+      import('@/utils/logUtil').then((logUtil) => {
+        logUtil.error('获取单词集失败', { module: 'WordSetList', message: result.message })
+      })
     }
   } catch (error) {
-    console.error('获取单词集失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('获取单词集失败', { module: 'WordSetList' }, error)
+    })
   } finally {
     loading.value = false
   }
@@ -52,7 +56,9 @@ onMounted(() => {
 
 // 编辑单词集
 const editWordSet = (wordSet) => {
-  console.log('编辑单词集:', wordSet)
+  import('@/utils/logUtil').then(({ debug }) => {
+    debug('编辑单词集', { module: 'WordSetList', wordSet })
+  })
   // 这里可以跳转到编辑页面，传递单词集ID
   // router.push({ path: '/wordEdit', query: { setId: wordSet.setId } })
 }
@@ -70,7 +76,9 @@ const deleteWordSet = async (wordSet) => {
         alert('删除失败：' + result.message)
       }
     } catch (error) {
-      console.error('删除单词集失败:', error)
+      import('@/utils/logUtil').then((logUtil) => {
+        logUtil.error('删除单词集失败', { module: 'WordSetList', wordSet }, error)
+      })
       alert('删除失败：' + error.message)
     }
   }
@@ -78,7 +86,9 @@ const deleteWordSet = async (wordSet) => {
 
 // 开始游戏
 const playGame = (wordSet) => {
-  console.log('开始游戏:', wordSet)
+  import('@/utils/logUtil').then(({ debug }) => {
+    debug('开始游戏', { module: 'WordSetList', wordSet })
+  })
   // 跳转到游戏选择页面，并传递单词集ID
   router.push({ path: '/gameSelect', query: { setId: wordSet.setId } })
 }

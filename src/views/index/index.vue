@@ -72,7 +72,7 @@ const loadSettings = () => {
       musicEnabled.value = setting.musicEnabled !== false
     }
   } catch (error) {
-    console.error('加载设置失败:', error)
+    import('@/utils/logUtil').then((logUtil) => logUtil.error('加载设置失败', { module: 'HomeIndex' }, error))
   }
 }
 
@@ -84,7 +84,7 @@ const saveSetting = (updateData) => {
     const newSetting = { ...currentSetting, ...updateData }
     localStorage.setItem('wordBeanSetting', JSON.stringify(newSetting))
   } catch (error) {
-    console.error('保存设置失败:', error)
+    import('@/utils/logUtil').then((logUtil) => logUtil.error('保存设置失败', { module: 'HomeIndex' }, error))
   }
 }
 

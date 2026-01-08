@@ -107,7 +107,9 @@ const generateLevel = async () => {
       router.push('/')
     }
   } catch (error) {
-    console.error('生成关卡失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('生成关卡失败', { module: 'GamePlay' }, error)
+    })
     alert('生成关卡失败：' + error.message)
     router.push('/')
   }
@@ -168,7 +170,9 @@ const checkMatch = async () => {
       }
     }
   } catch (error) {
-    console.error('检查匹配失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('检查匹配失败', { module: 'GamePlay' }, error)
+    })
     resetSelection()
   }
 }
@@ -211,7 +215,7 @@ const useHint = () => {
   }
 }
 
-// 格式化时间
+// 启动计时器
 const startTimer = () => {
   timerInterval.value = setInterval(() => {
     time.value++
@@ -257,7 +261,9 @@ const endGame = async () => {
       })
     }
   } catch (error) {
-    console.error('结束游戏失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('结束游戏失败', { module: 'GamePlay' }, error)
+    })
     // 即使失败也跳转到结果页面，显示基本信息
     router.push({
       path: '/gameResult',

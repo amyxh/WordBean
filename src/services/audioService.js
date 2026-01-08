@@ -1,6 +1,8 @@
 // 音效服务
 // 使用Web Audio API实现音效和音乐播放
 
+import logUtil from '../utils/logUtil'
+
 // 创建音频上下文
 let audioContext = null;
 
@@ -17,6 +19,12 @@ const soundBuffers = {
 let bgmSource = null;
 let bgmBuffer = null;
 let bgmGainNode = null;
+
+// 音频实例和定时器管理
+let bgmOscillators = []; // 存储所有创建的振荡器实例
+let bgmTimers = []; // 存储所有相关的定时器
+let bgmGainNodes = []; // 存储所有创建的增益节点
+let repeatTimer = null; // 存储重复播放的定时器
 
 // 设置
 let soundEnabled = true;
@@ -95,10 +103,8 @@ const playBgm = () => {
   
   initAudioContext();
   
-  // 停止当前的背景音乐
-  if (bgmSource) {
-    bgmSource.stop();
-  }
+  // 停止当前的背景音乐和所有实例
+  stopBgm();
   
   // 使用平安夜的旋律片段作为基础
   // 平安夜简谱：1 1 5 5 6 6 5 - 4 4 3 3 2 2 1 - 5 5 4 4 3 3 2 - 5 5 4 4 3 3 2 - 1 1 5 5 6 6 5 - 4 4 3 3 2 2 1
@@ -119,6 +125,7 @@ const playBgm = () => {
   // 创建音量节点
   bgmGainNode = audioContext.createGain();
   bgmGainNode.connect(audioContext.destination);
+  bgmGainNodes.push(bgmGainNode);
   
   // 设置平滑的音量变化
   bgmGainNode.gain.setValueAtTime(0, startTime);
@@ -153,6 +160,10 @@ const playBgm = () => {
         
         osc.start(chordStartTime);
         osc.stop(chordStartTime + chordDuration);
+        
+        // 保存实例到数组中
+        bgmOscillators.push(osc);
+        bgmGainNodes.push(gain);
       });
     });
   };
@@ -180,6 +191,10 @@ const playBgm = () => {
     
     osc.start(noteStartTime);
     osc.stop(noteStartTime + noteDuration);
+    
+    // 保存实例到数组中
+    bgmOscillators.push(osc);
+    bgmGainNodes.push(gain);
   });
   
   // 淡出效果
@@ -187,15 +202,58 @@ const playBgm = () => {
   bgmGainNode.gain.linearRampToValueAtTime(0, startTime + totalDuration - 1);
   
   // 3秒后重新播放
-  setTimeout(playBgm, (totalDuration + 3) * 1000);
+  if (repeatTimer) {
+    clearTimeout(repeatTimer);
+  }
+  repeatTimer = setTimeout(playBgm, (totalDuration + 3) * 1000);
 };
 
 // 停止背景音乐
 const stopBgm = () => {
-  if (bgmSource) {
-    bgmSource.stop();
-    bgmSource = null;
+  // 停止所有振荡器实例
+  bgmOscillators.forEach(osc => {
+    try {
+      osc.stop(0);
+    } catch (e) {
+      // 忽略已经停止的实例
+    }
+  });
+  
+  // 断开所有增益节点的连接
+  bgmGainNodes.forEach(gainNode => {
+    try {
+      gainNode.disconnect();
+    } catch (e) {
+      // 忽略已经断开的节点
+    }
+  });
+  
+  // 清除所有定时器
+  bgmTimers.forEach(timer => clearTimeout(timer));
+  
+  // 清除重复播放的定时器
+  if (repeatTimer) {
+    clearTimeout(repeatTimer);
+    repeatTimer = null;
   }
+  
+  // 重置所有数组
+  bgmOscillators = [];
+  bgmGainNodes = [];
+  bgmTimers = [];
+  
+  // 重置主音量节点
+  if (bgmGainNode) {
+    try {
+      bgmGainNode.disconnect();
+    } catch (e) {
+      // 忽略已经断开的节点
+    }
+    bgmGainNode = null;
+  }
+  
+  // 重置bgmSource（虽然目前未使用）
+  bgmSource = null;
 };
 
 // 设置音效开关
@@ -236,7 +294,7 @@ const loadSettings = () => {
       musicEnabled = setting.musicEnabled !== false;
     }
   } catch (error) {
-    console.error('加载音效设置失败:', error);
+    logUtil.error('加载音效设置失败', { module: 'AudioService' }, error);
   }
 };
 

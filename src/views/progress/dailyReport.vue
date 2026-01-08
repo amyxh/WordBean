@@ -176,7 +176,9 @@ const fetchDailyReport = async () => {
       }))
     }
   } catch (error) {
-    console.error('获取日报数据失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('获取日报数据失败', { module: 'DailyReport' }, error)
+    })
   } finally {
     loading.value = false
   }
@@ -196,7 +198,9 @@ const nextDate = () => {
 
 // 加入复习列表
 const addToReviewList = (word) => {
-  console.log('加入复习列表:', word)
+  import('@/utils/logUtil').then(({ debug }) => {
+    debug('加入复习列表', { module: 'DailyReport', word })
+  })
   // 这里可以添加加入复习列表的逻辑
 }
 

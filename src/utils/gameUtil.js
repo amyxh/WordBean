@@ -1,4 +1,5 @@
 // 游戏工具类
+import logUtil from './logUtil'
 
 // Fisher-Yates 洗牌算法（用于随机排列卡片）
 export const shuffleCards = (cards) => {
@@ -144,7 +145,7 @@ export const throttle = (func, limit) => {
 // 播放音效
 export const playSound = (soundType) => {
   // 这里可以集成音效播放功能
-  console.log(`播放音效: ${soundType}`)
+  logUtil.debug(`播放音效: ${soundType}`, { module: 'GameUtil' })
   
   // 简单实现：使用HTML5 Audio API
   if (typeof Audio !== 'undefined') {
@@ -173,7 +174,7 @@ export const playSound = (soundType) => {
       const audio = new Audio(audioUrl)
       audio.play()
     } catch (error) {
-      console.error('播放音效失败:', error)
+      logUtil.error('播放音效失败', { module: 'GameUtil', soundType }, error)
     }
   }
 }

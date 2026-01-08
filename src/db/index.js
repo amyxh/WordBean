@@ -3,6 +3,7 @@ import { wordDao } from './wordDao'
 import { wordSetDao } from './wordSetDao'
 import { progressDao } from './progressDao'
 import { settingDao } from './settingDao'
+import logUtil from '@/utils/logUtil'
 // 静态导入默认单词集数据
 import defaultWordSetsData from '@/assets/defaultWordSets.json'
 
@@ -81,10 +82,10 @@ const initDatabase = async () => {
     // 初始化默认设置
     await initDefaultSetting(db)
     
-    console.log('数据库初始化成功')
+    logUtil.info('数据库初始化成功', { module: 'Database' })
     return db
   } catch (error) {
-    console.error('数据库初始化失败:', error)
+    logUtil.error('数据库初始化失败', { module: 'Database' }, error)
     throw error
   }
 }
@@ -159,7 +160,7 @@ const initBuiltInData = async (db) => {
     )
   }
   
-  console.log('内置数据初始化成功')
+  logUtil.info('内置数据初始化成功', { module: 'Database' })
 }
 
 // 初始化默认设置
@@ -180,7 +181,7 @@ const initDefaultSetting = async (db) => {
     ['default_setting', 1, 1, 'easy', 30, new Date().toISOString()]
   )
   
-  console.log('默认设置初始化成功')
+  logUtil.info('默认设置初始化成功', { module: 'Database' })
 }
 
 // 导出数据库相关功能

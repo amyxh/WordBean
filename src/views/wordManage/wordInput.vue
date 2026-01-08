@@ -116,7 +116,7 @@ const saveWordSet = async () => {
     alert('单词集保存成功！')
     router.push('/wordSetList')
   } catch (error) {
-    console.error('保存单词集失败:', error)
+    import('@/utils/logUtil').then((logUtil) => logUtil.error('保存单词集失败', { module: 'WordInput' }, error))
     alert('保存单词集失败：' + error.message)
   } finally {
     loading.value = false

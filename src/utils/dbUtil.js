@@ -1,4 +1,5 @@
 // 数据库工具类，用于封装数据库操作
+import logUtil from './logUtil'
 
 // 内存数据库实现（用于浏览器环境）
 class MemoryDatabase {
@@ -100,12 +101,12 @@ export const openDatabase = (name, version, displayName, estimatedSize) => {
         return;
       } catch (error) {
         // Web SQL 失败，使用内存数据库
-        console.warn('Web SQL 不可用，使用内存数据库:', error.message);
+        logUtil.warn('Web SQL 不可用，使用内存数据库', { module: 'DbUtil' }, error);
       }
     }
     
     // 如果都不可用，使用内存数据库作为最后的备选方案
-    console.warn('SQLite 不可用，使用内存数据库作为备选方案');
+    logUtil.warn('SQLite 不可用，使用内存数据库作为备选方案', { module: 'DbUtil' });
     resolve(new MemoryDatabase());
   });
 };
@@ -116,7 +117,7 @@ export const executeSql = (db, sql, params = []) => {
     db.executeSql(sql, params, (_, result) => {
       resolve(result);
     }, (_, error) => {
-      console.error('SQL Error:', error.message, 'SQL:', sql, 'Params:', params);
+      logUtil.error('SQL Error', { module: 'DbUtil', sql, params }, error);
       reject(error);
     });
   });

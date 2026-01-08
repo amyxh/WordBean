@@ -1,6 +1,7 @@
 import { shuffleCards } from '@/utils/gameUtil'
 import dayjs from 'dayjs'
 import defaultWordSets from '@/assets/defaultWordSets.json'
+import logUtil from '@/utils/logUtil'
 
 // 合并所有单词集为一个单词库
 const getAllWords = () => {
@@ -140,7 +141,7 @@ const gameService = {
         message: `关卡生成成功，共${pairCount}对匹配项，布局：${layout}`
       }
     } catch (error) {
-      console.error('关卡生成失败:', error)
+      logUtil.error('关卡生成失败', { module: 'GameService' }, error)
       return {
         success: false,
         message: `关卡生成失败：${error.message}`
@@ -195,7 +196,7 @@ const gameService = {
         }
       }
     } catch (error) {
-      console.error('匹配检查失败:', error)
+      logUtil.error('匹配检查失败', { module: 'GameService' }, error)
       return {
         success: false,
         message: `匹配检查失败：${error.message}`
@@ -271,7 +272,7 @@ const gameService = {
         message: isPass ? '关卡通关！' : '关卡未通关~'
       }
     } catch (error) {
-      console.error('关卡结束处理失败:', error)
+      logUtil.error('关卡结束处理失败', { module: 'GameService' }, error)
       return {
         success: false,
         message: `关卡结束处理失败：${error.message}`

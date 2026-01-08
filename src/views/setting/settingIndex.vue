@@ -62,7 +62,9 @@ const loadSettings = async () => {
       dailyTimeLimit.value = setting.dailyTimeLimit || 30
     }
   } catch (error) {
-    console.error('加载设置失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('加载设置失败', { module: 'SettingIndex' }, error)
+    })
   } finally {
     loading.value = false
   }
@@ -77,7 +79,9 @@ const saveSetting = async (updateData) => {
     const newSetting = { ...currentSetting, ...updateData }
     localStorage.setItem('wordBeanSetting', JSON.stringify(newSetting))
   } catch (error) {
-    console.error('保存设置失败:', error)
+    import('@/utils/logUtil').then((logUtil) => {
+      logUtil.error('保存设置失败', { module: 'SettingIndex', updateData }, error)
+    })
   }
 }
 
@@ -88,7 +92,9 @@ const changeDailyTimeLimit = async () => {
 
 // 打开隐私政策
 const openPrivacy = () => {
-  console.log('打开隐私政策')
+  import('@/utils/logUtil').then(({ debug }) => {
+    debug('打开隐私政策', { module: 'SettingIndex' })
+  })
   alert('隐私政策查看功能开发中！')
 }
 

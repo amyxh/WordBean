@@ -1,6 +1,7 @@
 import { wordDao } from '@/db/wordDao'
 import { wordSetDao } from '@/db/wordSetDao'
 import { validateWordForm, autoGenerateWordInfo } from '@/utils/wordUtil'
+import logUtil from '@/utils/logUtil'
 
 // 单词服务层
 const wordService = {
@@ -47,7 +48,7 @@ const wordService = {
         message: '单词录入成功'
       }
     } catch (error) {
-      console.error('单词录入失败:', error)
+      logUtil.error('单词录入失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '单词录入失败：' + error.message
@@ -128,7 +129,7 @@ const wordService = {
         message: `导入完成，成功${successList.length}个，失败${failList.length}个`
       }
     } catch (error) {
-      console.error('批量导入失败:', error)
+      logUtil.error('批量导入失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '批量导入失败：' + error.message
@@ -169,7 +170,7 @@ const wordService = {
         message: '单词集创建成功'
       }
     } catch (error) {
-      console.error('单词集创建失败:', error)
+      logUtil.error('单词集创建失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '单词集创建失败：' + error.message
@@ -196,7 +197,7 @@ const wordService = {
         message: '单词删除成功'
       }
     } catch (error) {
-      console.error('单词删除失败:', error)
+      logUtil.error('单词删除失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '单词删除失败：' + error.message
@@ -215,7 +216,7 @@ const wordService = {
         message: '单词集删除成功'
       }
     } catch (error) {
-      console.error('单词集删除失败:', error)
+      logUtil.error('单词集删除失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '单词集删除失败：' + error.message
@@ -233,7 +234,7 @@ const wordService = {
         message: '单词集编辑成功'
       }
     } catch (error) {
-      console.error('单词集编辑失败:', error)
+      logUtil.error('单词集编辑失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '单词集编辑失败：' + error.message
@@ -261,7 +262,7 @@ const wordService = {
         message: '获取单词集成功'
       }
     } catch (error) {
-      console.error('获取单词集失败:', error)
+      logUtil.error('获取单词集失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '获取单词集失败：' + error.message
@@ -281,7 +282,7 @@ const wordService = {
         message: '分享链接生成成功'
       }
     } catch (error) {
-      console.error('生成分享链接失败:', error)
+      logUtil.error('生成分享链接失败', { module: 'WordService' }, error)
       return {
         success: false,
         message: '生成分享链接失败：' + error.message

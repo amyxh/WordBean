@@ -210,7 +210,9 @@ export const generateRandomColor = () => {
 // 播放单词发音
 export const playWordPronunciation = (wordText) => {
   // 这里可以集成语音合成API或播放本地音频文件
-  console.log(`播放单词发音: ${wordText}`)
+  import('./logUtil').then(({ debug }) => {
+    debug(`播放单词发音: ${wordText}`, { module: 'WordUtil' })
+  })
   
   // 简单实现：使用Web Speech API
   if (window.speechSynthesis) {
