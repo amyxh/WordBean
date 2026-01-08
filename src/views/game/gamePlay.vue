@@ -6,11 +6,12 @@
       <button @click="useHint" class="hint-btn" :disabled="hintCount >= 3">提示 ({{ 3 - hintCount }})</button>
       <button @click="exitGame" class="exit-btn">退出</button>
     </div>
-    <div class="game-board" :class="layoutClass">
+    <div class="game-board" :class="layoutClass" :style="boardStyle">
       <div class="card" 
            v-for="card in cards" 
            :key="card.cardId" 
            :class="getCardClass(card)" 
+           :style="cardStyle"
            @click="selectCard(card)">
         <div class="card-content">
           <template v-if="card.type === 'word'">
@@ -58,14 +59,41 @@ const isProcessing = ref(false)
 const loading = ref(true)
 const levelData = ref(null)
 
-// 布局类名（简单：3x4，中等：4x5，困难：5x6）
+// 动态计算网格布局，根据卡片数量自动调整行列数
 const layoutClass = computed(() => {
-  const layoutMap = {
-    '3x4': 'layout-3x4',
-    '4x5': 'layout-4x5',
-    '5x6': 'layout-5x6'
+  const cardCount = cards.value.length
+  // 计算最合适的行列数，使卡片排列成接近正方形的网格
+  const columns = Math.ceil(Math.sqrt(cardCount))
+  const rows = Math.ceil(cardCount / columns)
+  return `layout-${columns}x${rows}`
+})
+
+// 计算卡片大小，根据屏幕尺寸和卡片数量动态调整
+const cardSize = computed(() => {
+  const cardCount = cards.value.length
+  const columns = Math.ceil(Math.sqrt(cardCount))
+  // 根据屏幕宽度和列数计算卡片大小，确保有适当的间距
+  const baseSize = Math.min(100, Math.floor(400 / columns))
+  return `${baseSize}px`
+})
+
+// 游戏板样式，动态调整网格布局
+const boardStyle = computed(() => {
+  const cardCount = cards.value.length
+  const columns = Math.ceil(Math.sqrt(cardCount))
+  return {
+    gridTemplateColumns: `repeat(${columns}, minmax(${cardSize.value}, 1fr))`,
+    gridTemplateRows: `repeat(auto-fit, ${cardSize.value})`,
+    gap: '0.8rem'
   }
-  return layoutMap[levelData.value?.layout || '3x4'] || 'layout-3x4'
+})
+
+// 卡片样式，动态调整大小
+const cardStyle = computed(() => {
+  return {
+    width: cardSize.value,
+    height: cardSize.value
+  }
 })
 
 // 格式化时间
@@ -303,30 +331,34 @@ onUnmounted(() => {
   flex-direction: column;
   height: 100vh;
   background-color: #f0f9ff;
+  overflow: hidden;
 }
 
 .game-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   background-color: #3b82f6;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: 0.5rem;
 }
 
 .timer, .score {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .hint-btn, .exit-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .hint-btn {
@@ -355,94 +387,41 @@ onUnmounted(() => {
 .game-board {
   flex: 1;
   display: grid;
-  gap: 0.8rem;
-  padding: 1rem;
+  padding: 0.6rem 0.8rem;
   overflow: auto;
   place-items: center;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  justify-content: center;
+  align-content: center;
+  transition: all 0.3s ease;
+  max-width: 85%;
+  margin: 0 auto;
+  width: 100%;
 }
 
-.layout-3x4 {
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  grid-template-rows: repeat(3, 80px);
-  grid-auto-columns: minmax(80px, 1fr);
-  grid-auto-rows: 80px;
+/* 动态布局类，根据行列数自动调整 */
+[class^="layout-"] {
+  gap: 0.4rem;
 }
 
-.layout-4x5 {
-  grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
-  grid-template-rows: repeat(4, 75px);
-  grid-auto-columns: minmax(75px, 1fr);
-  grid-auto-rows: 75px;
-}
-
-.layout-5x6 {
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-  grid-template-rows: repeat(5, 70px);
-  grid-auto-columns: minmax(70px, 1fr);
-  grid-auto-rows: 70px;
-}
-
-/* 响应式设计 */
+/* 响应式设计 - 根据屏幕宽度调整间距 */
 @media (max-width: 768px) {
   .game-board {
-    gap: 0.6rem;
-    padding: 0.8rem;
-  }
-  
-  .layout-3x4 {
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-    grid-template-rows: repeat(3, 70px);
-    grid-auto-columns: minmax(70px, 1fr);
-    grid-auto-rows: 70px;
-  }
-  
-  .layout-4x5 {
-    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
-    grid-template-rows: repeat(4, 65px);
-    grid-auto-columns: minmax(65px, 1fr);
-    grid-auto-rows: 65px;
-  }
-  
-  .layout-5x6 {
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    grid-template-rows: repeat(5, 60px);
-    grid-auto-columns: minmax(60px, 1fr);
-    grid-auto-rows: 60px;
+    gap: 0.35rem;
+    padding: 0.5rem 0.6rem;
+    max-width: 90%;
   }
 }
 
 @media (max-width: 480px) {
   .game-board {
-    gap: 0.5rem;
-    padding: 0.6rem;
-  }
-  
-  .layout-3x4 {
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    grid-template-rows: repeat(3, 60px);
-    grid-auto-columns: minmax(60px, 1fr);
-    grid-auto-rows: 60px;
-  }
-  
-  .layout-4x5 {
-    grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
-    grid-template-rows: repeat(4, 55px);
-    grid-auto-columns: minmax(55px, 1fr);
-    grid-auto-rows: 55px;
-  }
-  
-  .layout-5x6 {
-    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
-    grid-template-rows: repeat(5, 50px);
-    grid-auto-columns: minmax(50px, 1fr);
-    grid-auto-rows: 50px;
+    gap: 0.3rem;
+    padding: 0.4rem;
+    max-width: 95%;
   }
 }
 
+/* 卡片基础样式 */
 .card {
-  width: 100%;
-  height: 100%;
   background-color: white;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -453,9 +432,10 @@ onUnmounted(() => {
   justify-content: center;
   perspective: 1000px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  aspect-ratio: 1 / 1;
-  min-width: 50px;
-  min-height: 50px;
+  overflow: hidden;
+  position: relative;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .card.selected {
@@ -485,7 +465,7 @@ onUnmounted(() => {
 
 .card-content {
   text-align: center;
-  padding: 0.5rem;
+  padding: 0.3rem;
   width: 100%;
   height: 100%;
   display: flex;
@@ -495,25 +475,27 @@ onUnmounted(() => {
 }
 
 .word-text {
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-size: clamp(0.75rem, 3vw, 0.95rem);
   font-weight: bold;
   color: #1f2937;
-  line-height: 1.2;
+  line-height: 1.15;
   word-break: break-word;
   overflow-wrap: break-word;
+  letter-spacing: -0.02em;
 }
 
 .paraphrase-text {
-  font-size: clamp(0.65rem, 2vw, 0.8rem);
+  font-size: clamp(0.6rem, 2.5vw, 0.75rem);
   color: #4b5563;
-  line-height: 1.2;
+  line-height: 1.15;
   word-break: break-word;
   overflow-wrap: break-word;
+  letter-spacing: -0.01em;
 }
 
 .card-image {
-  max-width: 80%;
-  max-height: 80%;
+  max-width: 75%;
+  max-height: 75%;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
@@ -548,14 +530,15 @@ onUnmounted(() => {
 }
 
 .game-footer {
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   background-color: white;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 100%;
 }
 
 .matched-pairs {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #3b82f6;
 }

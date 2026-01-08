@@ -1,7 +1,8 @@
 <template>
   <div class="setting-index">
     <div class="header">
-      <button @click="$router.push('/')" class="back-btn">
+      <button @click="$router.push('/')" class="back-btn" 
+              @mouseenter="isHovered = true" @mouseleave="isHovered = false">
         <span class="back-icon">←</span>
         <span class="back-text">返回首页</span>
       </button>
@@ -53,6 +54,7 @@ import { ref, onMounted } from 'vue'
 // 游戏设置
 const dailyTimeLimit = ref(30)
 const loading = ref(false)
+const isHovered = ref(false)
 
 // 加载设置数据
 const loadSettings = async () => {
@@ -124,39 +126,85 @@ onMounted(() => {
 }
 
 .back-btn {
-  background-color: #3b82f6;
-  color: white;
+  background-color: transparent;
+  color: #3b82f6;
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  text-decoration: none;
+  outline: none;
+  user-select: none;
 }
 
 .back-btn:hover {
-  background-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateX(-2px);
+  transition: all 0.2s ease;
 }
 
 .back-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateX(-1px);
+  transition: all 0.1s ease;
+}
+
+.back-btn:active .back-text,
+.back-btn:active .back-icon {
+  font-size: 1.05rem;
+  transition: font-size 0.15s ease;
 }
 
 .back-icon {
   font-size: 1.1rem;
   font-weight: bold;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.back-btn:hover .back-icon {
+  transform: translateX(-2px);
 }
 
 .back-text {
   font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .back-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .back-icon {
+    font-size: 1rem;
+  }
+  
+  .back-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-btn {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  
+  .back-icon {
+    font-size: 0.95rem;
+  }
+  
+  .back-text {
+    font-size: 0.85rem;
+  }
 }
 
 h2 {
