@@ -1,23 +1,40 @@
 <template>
   <div class="game-play">
-    <!-- 右上角独立音效和音乐开关 -->
+    <!-- 右上角独立音效、音乐和提示开关 -->
     <div class="top-right-settings">
       <div class="audio-icon-btn-container">
-        <button @click="toggleSound" class="audio-icon-btn" :class="{ 'muted': !soundEnabled }" title="音效">
-          <span class="audio-icon-text">🔊</span>
-        </button>
+        <div class="tooltip-wrapper">
+          <button @click="toggleSound" class="audio-icon-btn" :class="{ 'muted': !soundEnabled }">
+            <span class="audio-icon-text">🔊</span>
+          </button>
+          <div class="tooltip left">音效</div>
+        </div>
       </div>
       <div class="audio-icon-btn-container">
-        <button @click="toggleMusic" class="audio-icon-btn" :class="{ 'muted': !musicEnabled }" title="音乐">
-          <span class="audio-icon-text">🎵</span>
-        </button>
+        <div class="tooltip-wrapper">
+          <button @click="toggleMusic" class="audio-icon-btn" :class="{ 'muted': !musicEnabled }">
+            <span class="audio-icon-text">🎵</span>
+          </button>
+          <div class="tooltip left">音乐</div>
+        </div>
+      </div>
+      <div class="audio-icon-btn-container">
+        <div class="tooltip-wrapper">
+          <button @click="useHint" class="audio-icon-btn" :class="{ 'disabled': hintCount >= 3 }" :disabled="hintCount >= 3">
+            <span class="audio-icon-text">💡</span>
+          </button>
+          <div class="tooltip left">提示（{{ 3 - hintCount }}）</div>
+        </div>
       </div>
     </div>
     <div class="game-header">
-      <div class="timer">时间: {{ formattedTime }}</div>
-      <div class="score">得分: {{ score }}</div>
-      <button @click="useHint" class="hint-btn" :disabled="hintCount >= 3">提示 ({{ 3 - hintCount }})</button>
-      <button @click="exitGame" class="exit-btn">退出</button>
+      <div class="tooltip-wrapper">
+        <button @click="showExitConfirm" class="exit-btn">🏠</button>
+        <div class="tooltip bottom">返回主页</div>
+      </div>
+      <div class="timer">时间：{{ formattedTime }}</div>
+      <div class="matched-pairs">已匹配 {{ matchedPairs }} / {{ totalPairs }} 对</div>
+      <div class="score">得分：{{ score }}</div>
     </div>
     <div class="game-board" :class="layoutClass" :style="boardStyle">
       <div class="card" 
@@ -39,8 +56,21 @@
         </div>
       </div>
     </div>
-    <div class="game-footer">
-      <div class="matched-pairs">{{ matchedPairs }} / {{ totalPairs }} 对</div>
+    
+    <!-- 自定义退出确认对话框 -->
+    <div v-if="showConfirmModal" class="custom-modal-overlay">
+      <div class="custom-modal">
+        <div class="modal-header">
+          <h3>单词豆</h3>
+        </div>
+        <div class="modal-content">
+          <p>即将放弃当前游戏，请确认！</p>
+        </div>
+        <div class="modal-footer">
+          <button @click="confirmExit" class="confirm-btn">确定</button>
+          <button @click="cancelExit" class="cancel-btn">取消</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -119,10 +149,9 @@ const cardSize = computed(() => {
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
   
-  // 扣除头部和底部的高度
-  const headerHeight = 60 // 估计值，可根据实际调整
-  const footerHeight = 50 // 估计值，可根据实际调整
-  const availableHeight = viewportHeight - headerHeight - footerHeight - 40 // 40px为padding
+  // 扣除头部的高度
+  const headerHeight = 80 // 估计值，可根据实际调整
+  const availableHeight = viewportHeight - headerHeight - 40 // 40px为padding
   
   // 计算最大可用宽度和高度
   const maxAvailableWidth = viewportWidth - 40 // 40px为padding
@@ -287,7 +316,7 @@ const checkMatch = async () => {
           resetSelection()
           
           // 检查游戏是否结束
-          if (matchedPairs.value === totalPairs.value) {
+          if (levelData.value.matchedPairs === levelData.value.totalPairs) {
             endGame()
           }
         }, 500)
@@ -377,6 +406,9 @@ const endGame = async () => {
   // 播放完成音效
   import('@/services/audioService').then((audioService) => {
     audioService.playSound('complete')
+    // 根据游戏结果切换背景音乐
+    const isVictory = matchedPairs.value === totalPairs.value
+    audioService.playBgm(isVictory ? 'victory' : 'defeat')
   })
   
   try {
@@ -402,41 +434,133 @@ const endGame = async () => {
       logUtil.error('结束游戏失败', { module: 'GamePlay' }, error)
     })
     // 即使失败也跳转到结果页面，显示基本信息
-    router.push({
-      path: '/gameResult',
-      query: {
-        score: score.value,
-        time: time.value,
-        matchedPairs: matchedPairs.value,
-        totalPairs: totalPairs.value,
-        isPass: (matchedPairs.value === totalPairs.value).toString()
-      }
-    })
+      router.push({
+        path: '/gameResult',
+        query: {
+          score: score.value,
+          time: time.value,
+          matchedPairs: levelData.value.matchedPairs,
+          totalPairs: levelData.value.totalPairs,
+          isPass: (levelData.value.matchedPairs === levelData.value.totalPairs).toString()
+        }
+      })
   }
 }
 
-// 退出游戏
-const exitGame = () => {
-  if (confirm('确定要退出游戏吗？')) {
-    stopTimer()
-    router.push('/')
-  }
+// 退出游戏确认模态框状态
+const showConfirmModal = ref(false)
+
+// 显示退出确认对话框
+const showExitConfirm = () => {
+  showConfirmModal.value = true
 }
 
-// 组件挂载时生成关卡
-onMounted(() => {
-  generateLevel()
-  // 初始化设备检测
-  checkDeviceType()
-  // 监听窗口大小变化
-  window.addEventListener('resize', checkDeviceType)
-})
+// 确认退出游戏
+const confirmExit = () => {
+  showConfirmModal.value = false
+  stopTimer()
+  router.push('/')
+}
+
+// 取消退出游戏
+const cancelExit = () => {
+  showConfirmModal.value = false
+}
 
 // 音频设置
 const soundEnabled = ref(true)
 const musicEnabled = ref(true)
 const soundVolume = ref(0.7)
 const musicVolume = ref(0.5)
+
+// 处理提示框鼠标进入事件
+const handleTooltipMouseEnter = (event) => {
+  if (event.target.closest('.tooltip-wrapper')) {
+    setTimeout(() => {
+      adjustTooltipPosition(event.target.closest('.tooltip-wrapper'))
+    }, 100) // 延迟执行，确保tooltip已显示
+  }
+}
+
+// 动态调整提示框位置
+const adjustTooltipPosition = (wrapper) => {
+  const tooltip = wrapper.querySelector('.tooltip')
+  if (!tooltip) return
+  
+  // 获取窗口尺寸和滚动位置
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+  const scrollX = window.scrollX
+  const scrollY = window.scrollY
+  
+  // 获取触发元素尺寸和位置
+  const triggerBtn = wrapper.querySelector('button')
+  const triggerRect = triggerBtn.getBoundingClientRect()
+  const triggerWidth = triggerRect.width
+  const triggerHeight = triggerRect.height
+  
+  // 获取提示框尺寸
+  tooltip.style.visibility = 'hidden'
+  tooltip.style.opacity = '0'
+  tooltip.style.display = 'block' // 确保能获取到尺寸
+  const tooltipRect = tooltip.getBoundingClientRect()
+  const tooltipWidth = tooltipRect.width
+  const tooltipHeight = tooltipRect.height
+  tooltip.style.display = '' // 恢复显示状态
+  
+  // 计算触发元素在文档中的位置
+  const triggerLeft = triggerRect.left + scrollX
+  const triggerTop = triggerRect.top + scrollY
+  const triggerRight = triggerLeft + triggerWidth
+  const triggerBottom = triggerTop + triggerHeight
+  
+  // 计算各方向可用空间
+  const rightSpace = windowWidth - triggerRect.right
+  const leftSpace = triggerRect.left
+  const bottomSpace = windowHeight - triggerRect.bottom
+  const topSpace = triggerRect.top
+  
+  // 间距设置
+  const spacing = 10
+  
+  // 默认位置：右侧
+  let position = 'right'
+  
+  // 优先显示规则：右侧 > 下方 > 左侧 > 上方
+  // 1. 检查右侧空间
+  if (rightSpace >= tooltipWidth + spacing) {
+    position = 'right'
+  } 
+  // 2. 右侧空间不足，检查下方
+  else if (bottomSpace >= tooltipHeight + spacing) {
+    position = 'bottom'
+  } 
+  // 3. 下方空间不足，检查左侧
+  else if (leftSpace >= tooltipWidth + spacing) {
+    position = 'left'
+  } 
+  // 4. 左侧空间不足，显示在上方
+  else if (topSpace >= tooltipHeight + spacing) {
+    position = 'top'
+  }
+  // 5. 所有方向空间都不足，选择可用空间最大的方向
+  else {
+    const spaces = {
+      right: rightSpace,
+      bottom: bottomSpace,
+      left: leftSpace,
+      top: topSpace
+    }
+    position = Object.keys(spaces).reduce((a, b) => spaces[a] > spaces[b] ? a : b)
+  }
+  
+  // 应用位置类
+  tooltip.className = `tooltip ${position}`
+  
+  // 确保tooltip可见
+  tooltip.style.visibility = ''
+  tooltip.style.opacity = ''
+}
 
 // 切换音效开关
 const toggleSound = () => {
@@ -489,6 +613,15 @@ const initAudioSettings = () => {
   })
 }
 
+// 处理窗口滚动，调整显示中的提示框位置
+const handleWindowScroll = () => {
+  const visibleTooltips = document.querySelectorAll('.tooltip-wrapper:hover .tooltip')
+  visibleTooltips.forEach(tooltip => {
+    const wrapper = tooltip.closest('.tooltip-wrapper')
+    adjustTooltipPosition(wrapper)
+  })
+}
+
 // 组件挂载时生成关卡
 onMounted(() => {
   generateLevel()
@@ -501,7 +634,22 @@ onMounted(() => {
   // 初始化音频服务，开始播放音乐
   import('@/services/audioService').then((audioService) => {
     audioService.initAudioService()
+    // 播放游戏进行中的背景音乐
+    audioService.playBgm('game')
   })
+  
+  // 监听提示框显示事件，动态调整位置
+  document.addEventListener('mouseenter', handleTooltipMouseEnter)
+  // 监听窗口大小变化，调整所有显示中的提示框位置
+  window.addEventListener('resize', () => {
+    const visibleTooltips = document.querySelectorAll('.tooltip-wrapper:hover .tooltip')
+    visibleTooltips.forEach(tooltip => {
+      const wrapper = tooltip.closest('.tooltip-wrapper')
+      adjustTooltipPosition(wrapper)
+    })
+  })
+  // 监听窗口滚动，调整显示中的提示框位置
+  window.addEventListener('scroll', handleWindowScroll)
 })
 
 // 组件卸载时停止计时器和移除事件监听
@@ -512,6 +660,10 @@ onUnmounted(() => {
   import('@/services/audioService').then((audioService) => {
     audioService.stopBgm()
   })
+  // 移除提示框位置调整的事件监听器
+  document.removeEventListener('mouseenter', handleTooltipMouseEnter)
+  // 移除窗口滚动事件监听
+  window.removeEventListener('scroll', handleWindowScroll)
 })
 </script>
 
@@ -537,51 +689,59 @@ onUnmounted(() => {
   background-color: #3b82f6;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
   box-sizing: border-box;
   flex-shrink: 0;
   max-height: 80px;
 }
 
-.timer, .score {
+.timer, .score, .matched-pairs {
   font-size: 1rem;
   font-weight: bold;
   white-space: nowrap;
+  flex: 1;
+  text-align: center;
 }
 
-.hint-btn, .exit-btn {
-  padding: 0.4rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
+.matched-pairs {
+  font-size: 1.1rem;
+  flex: 1.2;
+}
+
+.score {
+  font-size: 1rem;
+  font-weight: bold;
   white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.hint-btn {
-  background-color: #f59e0b;
-  color: white;
-}
-
-.hint-btn:hover:not(:disabled) {
-  background-color: #d97706;
-}
-
-.hint-btn:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
+  flex: 1;
 }
 
 .exit-btn {
-  background-color: #ef4444;
-  color: white;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  /* 移除背景颜色 */
+  background-color: transparent;
+  /* 调整文字颜色以确保可见性 */
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
 .exit-btn:hover {
-  background-color: #dc2626;
+  /* 移除背景颜色 */
+  background-color: transparent;
+  /* 调整悬停效果 */
+  transform: scale(1.05);
+  color: #ef4444;
 }
 
 .game-board {
@@ -742,6 +902,11 @@ onUnmounted(() => {
   .paraphrase-text {
     font-size: clamp(0.6rem, 2.5vw, 0.75rem);
   }
+  
+  .matched-pairs {
+    font-size: 1rem;
+    padding: 0.1rem 0.6rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -756,23 +921,113 @@ onUnmounted(() => {
   .paraphrase-text {
     font-size: clamp(0.55rem, 3vw, 0.7rem);
   }
+  
+  .matched-pairs {
+    font-size: 0.9rem;
+    padding: 0.1rem 0.5rem;
+  }
+  
+  .game-header {
+    padding: 0.4rem 1rem;
+    gap: 1rem;
+  }
+  
+  .timer, .score {
+    font-size: 0.9rem;
+  }
+  
+  .exit-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 1.1rem;
+    width: 35px;
+    height: 35px;
+  }
 }
 
-.game-footer {
-  padding: 0.6rem 2rem;
-  background-color: white;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
+
+
+/* 自定义模态对话框样式 */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  max-height: 60px;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.matched-pairs {
-  font-size: 1rem;
-  font-weight: bold;
+.custom-modal {
+  background-color: rgba(255, 255, 255, 0.95); /* 半透明白色背景 */
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  backdrop-filter: blur(5px); /* 可选：添加毛玻璃效果 */
+}
+
+.modal-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
   color: #3b82f6;
+}
+
+.modal-content {
+  margin-bottom: 1.5rem;
+}
+
+.modal-content p {
+  margin: 0;
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirm-btn, .cancel-btn {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.confirm-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.cancel-btn:hover {
+  background-color: #e5e7eb;
+  transform: translateY(-1px);
 }
 
 /* 音频设置样式 */
@@ -1039,22 +1294,99 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, filter 0.2s ease;
   position: relative;
 }
 
-.audio-icon-btn:hover {
+.audio-icon-btn:hover:not(:disabled) {
   opacity: 0.8;
 }
 
-.audio-icon-btn:active {
+.audio-icon-btn:active:not(:disabled) {
   opacity: 0.6;
+}
+
+/* 禁用状态样式 */
+.audio-icon-btn.disabled,
+.audio-icon-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+/* 自定义提示框样式 */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 1001;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* 默认位置：按钮右侧 */
+  top: 50%;
+  left: calc(100% + 8px);
+  transform: translateY(-50%);
+}
+
+/* 左侧位置：当右侧空间不足时 */
+.tooltip.left {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+/* 上方位置：当下方空间不足时 */
+.tooltip.top {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 下方位置：当上方空间不足时 */
+.tooltip.bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 鼠标悬浮时显示提示框 */
+.tooltip-wrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tooltip {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tooltip {
+    font-size: 10px;
+    padding: 2px 5px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* 音频图标文本 - 扁平设计样式 */
 .audio-icon-text {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 18px;
+  color: #3b82f6;
   transition: opacity 0.2s ease;
 }
 
@@ -1106,7 +1438,7 @@ onUnmounted(() => {
   }
   
   .audio-icon-text {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 
@@ -1123,7 +1455,7 @@ onUnmounted(() => {
   }
   
   .audio-icon-text {
-    font-size: 13px;
+    font-size: 15px;
   }
 }
 </style>

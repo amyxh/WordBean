@@ -8,27 +8,28 @@
     
     <!-- 难度选择 -->
     <div class="difficulty-section">
-      <h3>选择难度</h3>
+      <h3>选择游戏难度</h3>
       <div class="difficulty-buttons">
         <button 
           class="difficulty-btn" 
           :class="{ 'selected': selectedDifficulty === 'easy' }"
-          @click="selectDifficulty('easy')">简单</button>
+          @click="selectDifficulty('easy')">简单模式</button>
         <button 
           class="difficulty-btn" 
           :class="{ 'selected': selectedDifficulty === 'medium' }"
-          @click="selectDifficulty('medium')">中等</button>
+          @click="selectDifficulty('medium')">中等模式</button>
         <button 
           class="difficulty-btn" 
           :class="{ 'selected': selectedDifficulty === 'hard' }"
-          @click="selectDifficulty('hard')">困难</button>
+          @click="selectDifficulty('hard')">困难模式</button>
       </div>
     </div>
     
     <!-- 功能按钮 -->
     <div class="menu-list">
       <button @click="startGame" class="primary-btn">开始游戏</button>
-      <button @click="$router.push('/setting')" class="secondary-btn">设置</button>
+      <button @click="$router.push('/setting')" class="secondary-btn">游戏设置</button>
+      <button @click="exitGame" class="secondary-btn">退出游戏</button>
     </div>
   </div>
 </template>
@@ -60,6 +61,16 @@ const startGame = () => {
     }
   })
 }
+
+// 退出游戏
+const exitGame = () => {
+  if (confirm('确定要退出游戏吗？')) {
+    // 清理当前游戏状态
+    localStorage.removeItem('lastDifficulty')
+    // 终止程序进程
+    window.close()
+  }
+}
 </script>
 
 <style scoped>
@@ -74,8 +85,6 @@ const startGame = () => {
   padding: 20px;
   position: relative;
 }
-
-
 
 /* 标题部分 */
 .title-section {
